@@ -1,3 +1,3 @@
 # vernala-backend
 
-Scraper for  languages
+Scraper for African languages
