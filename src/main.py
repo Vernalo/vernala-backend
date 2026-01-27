@@ -1,5 +1,7 @@
+from scrapers.ngiemboon_scraper import scrape_ngiemboon
+
 def main():
-    print("Hello from vernala-backend!")
+    scrape_ngiemboon()
 
 
 if __name__ == "__main__":
