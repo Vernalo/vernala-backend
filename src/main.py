@@ -8,12 +8,7 @@ from core.logger import logger
 from scrapers.languages import LANGUAGES
 from scrapers.scraper import scrape_language, scrape_letter
 
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Scrape African language dictionaries from webonary.org",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=f"""
+EPILOG = f"""
 Available languages:
   {', '.join(LANGUAGES.keys())}
 
@@ -21,7 +16,12 @@ Examples:
   python src/main.py --language ngiemboon --letter a
   python src/main.py --language bafut
   python src/main.py  # Scrapes all languages
-        """,
+"""
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Scrape African language dictionaries from webonary.org",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=EPILOG,
     )
     parser.add_argument(
         "-l",
