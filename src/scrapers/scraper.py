@@ -18,7 +18,6 @@ async def scrape_letter(
 ) -> None:
     entries = []
 
-    # Build URL with correct path based on source language
     base_url = f"https://www.webonary.org/{language.name}/"
     path = language.french_path if source_lang == "fr" else language.english_path
     query = build_query_params(source_lang, letter, 1)
