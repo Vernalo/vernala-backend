@@ -36,7 +36,7 @@ def extract_translations(entry: Tag) -> List[VernacularTranslation]:
                 parts.append(a.get_text(strip=True))
 
         word = "".join(parts)
-        link = link_el.get("href")
+        link = str(link_el.get("href"))
 
         if word and link:
             results.append(VernacularTranslation(word, link))
