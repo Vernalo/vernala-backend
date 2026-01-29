@@ -23,7 +23,7 @@ def save_letter_json(
                     "english": e.english,
                     language: [
                         {"word": t.word, "link": t.link}
-                        for t in e.vernacular
+                        for t in e.translations
                     ],
                 }
                 for e in entries

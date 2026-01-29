@@ -11,4 +11,4 @@ class VernacularTranslation:
 @dataclass(slots=True)
 class DictionaryEntry:
     english: str
-    vernacular: List[VernacularTranslation]
+    translations: List[VernacularTranslation]
