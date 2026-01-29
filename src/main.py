@@ -4,6 +4,7 @@ import sys
 
 import aiohttp
 
+from core.logger import logger
 from scrapers.languages import LANGUAGES
 from scrapers.scraper import scrape_language, scrape_letter
 
@@ -44,26 +45,26 @@ async def main() -> None:
 
     # If letter is specified but no language, error
     if args.letter and not args.language:
-        print("Error: --letter requires --language to be specified", file=sys.stderr)
+        logger.error("--letter requires --language to be specified")
         sys.exit(1)
 
     # If specific language and letter
     if args.language and args.letter:
         language_config = LANGUAGES[args.language]
-        print(f"Scraping {language_config.name.upper()} - Letter {args.letter.upper()}")
+        logger.info(f"Scraping {language_config.name.upper()} - Letter {args.letter.upper()}")
         async with aiohttp.ClientSession() as session:
             await scrape_letter(session, language_config, args.letter)
     # If specific language but all letters
     elif args.language:
         language_config = LANGUAGES[args.language]
-        print(f"Scraping {language_config.name.upper()} - All letters")
+        logger.info(f"Scraping {language_config.name.upper()} - All letters")
         await scrape_language(language_config)
     # If no arguments, scrape all languages
     else:
-        print("Scraping all languages...")
+        logger.info("Scraping all languages...")
         for language in LANGUAGES:
             language_config = LANGUAGES[language]
-            print(f"\nScraping {language_config.name.upper()}")
+            logger.info(f"\nScraping {language_config.name.upper()}")
             await scrape_language(language_config)
 
 
