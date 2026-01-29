@@ -114,7 +114,7 @@ class TestExtractTranslations:
         </div>
         """
         entry = BeautifulSoup(html, 'html.parser').find('div', class_='post')
-        translations = extract_translations(entry)
+        translations = extract_translations(entry, "nnh")
         
         assert len(translations) == 1
         assert translations[0].word == "ńnyé"
@@ -147,7 +147,7 @@ class TestExtractTranslations:
         </div>
         """
         entry = BeautifulSoup(html, 'html.parser').find('div', class_='post')
-        translations = extract_translations(entry)
+        translations = extract_translations(entry, "nnh")
         
         assert len(translations) == 2
         assert translations[0].word == "ńnyé"
@@ -170,7 +170,7 @@ class TestExtractTranslations:
         </div>
         """
         entry = BeautifulSoup(html, 'html.parser').find('div', class_='post')
-        translations = extract_translations(entry)
+        translations = extract_translations(entry, "nnh")
         
         assert len(translations) == 1
         assert translations[0].word == "ńnyé"
@@ -183,7 +183,7 @@ class TestExtractTranslations:
         </div>
         """
         entry = BeautifulSoup(html, 'html.parser').find('div', class_='post')
-        translations = extract_translations(entry)
+        translations = extract_translations(entry, "nnh")
         
         assert translations == []
     
@@ -199,7 +199,7 @@ class TestExtractTranslations:
         </div>
         """
         entry = BeautifulSoup(html, 'html.parser').find('div', class_='post')
-        translations = extract_translations(entry)
+        translations = extract_translations(entry, "nnh")
         
         assert translations == []
     
@@ -213,7 +213,7 @@ class TestExtractTranslations:
         </div>
         """
         entry = BeautifulSoup(html, 'html.parser').find('div', class_='post')
-        translations = extract_translations(entry)
+        translations = extract_translations(entry, "nnh")
         
         assert translations == []
     
@@ -231,7 +231,7 @@ class TestExtractTranslations:
         </div>
         """
         entry = BeautifulSoup(html, 'html.parser').find('div', class_='post')
-        translations = extract_translations(entry)
+        translations = extract_translations(entry, "nnh")
         
         assert translations == []
     
@@ -249,7 +249,7 @@ class TestExtractTranslations:
         </div>
         """
         entry = BeautifulSoup(html, 'html.parser').find('div', class_='post')
-        translations = extract_translations(entry)
+        translations = extract_translations(entry, "nnh")
         
         assert len(translations) == 1
         assert translations[0].word == "ńẅɛ́ʉ̀ŋ"
@@ -274,10 +274,10 @@ class TestExtractEntries:
         </div>
         """
         soup = BeautifulSoup(html, 'html.parser')
-        entries = extract_entries(soup)
+        entries = extract_entries(soup, "nnh")
         
         assert len(entries) == 1
-        assert entries[0].english == "abandon"
+        assert entries[0].source_word == "abandon"
         assert len(entries[0].translations) == 1
         assert entries[0].translations[0].word == "ńnyé"
     
@@ -306,11 +306,11 @@ class TestExtractEntries:
         </div>
         """
         soup = BeautifulSoup(html, 'html.parser')
-        entries = extract_entries(soup)
+        entries = extract_entries(soup, "nnh")
         
         assert len(entries) == 2
-        assert entries[0].english == "abandon"
-        assert entries[1].english == "above"
+        assert entries[0].source_word == "abandon"
+        assert entries[1].source_word == "above"
     
     def test_entry_with_multiple_translations(self):
         """Should handle entry with multiple translations"""
@@ -334,7 +334,7 @@ class TestExtractEntries:
         </div>
         """
         soup = BeautifulSoup(html, 'html.parser')
-        entries = extract_entries(soup)
+        entries = extract_entries(soup, "nnh")
         
         assert len(entries) == 1
         assert len(entries[0].translations) == 2
@@ -349,7 +349,7 @@ class TestExtractEntries:
         </html>
         """
         soup = BeautifulSoup(html, 'html.parser')
-        entries = extract_entries(soup)
+        entries = extract_entries(soup, "nnh")
         
         assert entries == []
     
@@ -367,7 +367,7 @@ class TestExtractEntries:
         </div>
         """
         soup = BeautifulSoup(html, 'html.parser')
-        entries = extract_entries(soup)
+        entries = extract_entries(soup, "nnh")
         
         assert entries == []
     
@@ -379,7 +379,7 @@ class TestExtractEntries:
         </div>
         """
         soup = BeautifulSoup(html, 'html.parser')
-        entries = extract_entries(soup)
+        entries = extract_entries(soup, "nnh")
         
         assert entries == []
     
@@ -398,7 +398,7 @@ class TestExtractEntries:
         </div>
         """
         soup = BeautifulSoup(html, 'html.parser')
-        entries = extract_entries(soup)
+        entries = extract_entries(soup, "nnh")
         
         assert entries == []
     
@@ -421,10 +421,10 @@ class TestExtractEntries:
         </div>
         """
         soup = BeautifulSoup(html, 'html.parser')
-        entries = extract_entries(soup)
+        entries = extract_entries(soup, "nnh")
         
         assert len(entries) == 1
-        assert entries[0].english == "abandon"
+        assert entries[0].source_word == "abandon"
     
     def test_real_world_example(self):
         """Should handle real-world HTML structure from webonary.org"""
@@ -468,10 +468,10 @@ class TestExtractEntries:
         </div>
         """
         soup = BeautifulSoup(html, 'html.parser')
-        entries = extract_entries(soup)
+        entries = extract_entries(soup, "nnh")
         
         assert len(entries) == 1
-        assert entries[0].english == "abandon"
+        assert entries[0].source_word == "abandon"
         assert len(entries[0].translations) == 2
         assert entries[0].translations[0].word == "ńnyé2ńnyé"
         assert entries[0].translations[1].word == "ńkʉ́e"
@@ -517,10 +517,10 @@ class TestIntegration:
         # Extract pagination
         total_pages = extract_total_pages(soup)
         assert total_pages == 16
-        
+
         # Extract entries
-        entries = extract_entries(soup)
+        entries = extract_entries(soup, "nnh")
         assert len(entries) == 2
-        assert entries[0].english == "abandon"
-        assert entries[1].english == "above"
+        assert entries[0].source_word == "abandon"
+        assert entries[1].source_word == "above"
 

@@ -18,7 +18,7 @@ def extract_total_pages(soup: BeautifulSoup) -> int:
     return int(match.group(1)) if match else 1
 
 
-def extract_translations(entry: Tag) -> List[VernacularTranslation]:
+def extract_translations(entry: Tag, lang_code: str) -> List[VernacularTranslation]:
     results: List[VernacularTranslation] = []
 
     for sense in entry.find_all("span", class_="sensesr"):
@@ -31,7 +31,7 @@ def extract_translations(entry: Tag) -> List[VernacularTranslation]:
             continue
 
         parts: list[str] = []
-        for span in headword.find_all("span", lang="nnh"):
+        for span in headword.find_all("span", lang=lang_code):
             for a in span.find_all("a"):
                 parts.append(a.get_text(strip=True))
 
@@ -44,7 +44,7 @@ def extract_translations(entry: Tag) -> List[VernacularTranslation]:
     return results
 
 
-def extract_entries(soup: BeautifulSoup) -> List[DictionaryEntry]:
+def extract_entries(soup: BeautifulSoup, lang_code: str) -> List[DictionaryEntry]:
     entries: List[DictionaryEntry] = []
 
     for post in soup.find_all("div", class_="post"):
@@ -52,10 +52,10 @@ def extract_entries(soup: BeautifulSoup) -> List[DictionaryEntry]:
         if not rev:
             continue
 
-        english = rev.get_text(strip=True)
-        translations = extract_translations(post)
+        source_word = rev.get_text(strip=True)
+        translations = extract_translations(post, lang_code)
 
-        if english and translations:
-            entries.append(DictionaryEntry(english, translations))
+        if source_word and translations:
+            entries.append(DictionaryEntry(source_word, translations))
 
     return entries
