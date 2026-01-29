@@ -1,11 +1,11 @@
 import asyncio
 import aiohttp
 
-from .config import PAGE_DELAY, LETTER_DELAY, QUERY_TEMPLATE
-from .api import fetch_html
-from .languages import LanguageConfig
-from .parser import extract_entries, extract_total_pages
-from .serializer import save_letter_json
+from config import PAGE_DELAY, LETTER_DELAY, QUERY_TEMPLATE
+from api import fetch_html
+from languages import LanguageConfig
+from parser import extract_entries, extract_total_pages
+from serializer import save_letter_json
 
 
 async def scrape_letter(

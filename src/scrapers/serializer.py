@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import List
 
-from .models import DictionaryEntry
+from models import DictionaryEntry
 
 
 def save_letter_json(
