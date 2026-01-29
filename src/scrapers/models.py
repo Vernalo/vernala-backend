@@ -10,5 +10,5 @@ class VernacularTranslation:
 
 @dataclass(slots=True)
 class DictionaryEntry:
-    english: str
+    source_word: str  # English or French word being translated
     translations: List[VernacularTranslation]

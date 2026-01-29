@@ -14,4 +14,8 @@ JITTER_MAX: float = 2.0  # Maximum random jitter to add (seconds)
 MAX_RETRIES: int = 3  # Maximum number of retries for failed requests
 RETRY_BASE_DELAY: float = 5.0  # Base delay for exponential backoff (seconds)
 
-QUERY_TEMPLATE: str = "?letter={letter}&key=en&pagenr={page}&lang=en"
+def build_query_params(source_lang: str, letter: str, page: int) -> str:
+    """
+    Build query parameters for webonary.org URLs.
+    """
+    return f"?letter={letter}&key={source_lang}&pagenr={page}&lang={source_lang}"
