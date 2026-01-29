@@ -1,7 +1,3 @@
-"""
-Unit tests for parser with different language codes
-Tests that parser works with multiple African languages (Ngiemboon, Bafut)
-"""
 from bs4 import BeautifulSoup
 import pytest
 
@@ -9,10 +5,8 @@ from scrapers.parser import extract_translations, extract_entries
 
 
 class TestMultipleLanguageCodes:
-    """Test suite for parser with different language codes"""
 
     def test_ngiemboon_language_code(self):
-        """Should extract translations with Ngiemboon language code (nnh)"""
         html = """
         <div class="post">
             <span class="sensesr">
@@ -31,7 +25,6 @@ class TestMultipleLanguageCodes:
         assert translations[0].word == "ńnyé"
 
     def test_bafut_language_code(self):
-        """Should extract translations with Bafut language code (bfd)"""
         html = """
         <div class="post">
             <span class="sensesr">
@@ -50,7 +43,6 @@ class TestMultipleLanguageCodes:
         assert translations[0].word == "àbùŋ"
 
     def test_wrong_language_code_returns_empty(self):
-        """Should return empty list when using wrong language code"""
         html = """
         <div class="post">
             <span class="sensesr">
@@ -74,7 +66,6 @@ class TestMultipleLanguageCodes:
         ("xyz", "testword"),
     ])
     def test_parametrized_language_codes(self, lang_code, expected_word):
-        """Should work with any language code"""
         html = f"""
         <div class="post">
             <span class="sensesr">
@@ -94,10 +85,8 @@ class TestMultipleLanguageCodes:
 
 
 class TestEntriesWithDifferentLanguages:
-    """Test extract_entries with different language codes"""
 
     def test_ngiemboon_entries(self):
-        """Should extract Ngiemboon entries correctly"""
         html = """
         <div class="post">
             <span class="reversalform">abandon</span>
@@ -118,7 +107,6 @@ class TestEntriesWithDifferentLanguages:
         assert entries[0].translations[0].word == "ńnyé"
 
     def test_bafut_entries(self):
-        """Should extract Bafut entries correctly"""
         html = """
         <div class="post">
             <span class="reversalform">abandon</span>
@@ -139,7 +127,6 @@ class TestEntriesWithDifferentLanguages:
         assert entries[0].translations[0].word == "àbùŋ"
 
     def test_multiple_entries_same_language(self):
-        """Should extract multiple entries with same language code"""
         html = """
         <div class="post">
             <span class="reversalform">abandon</span>
@@ -171,10 +158,9 @@ class TestEntriesWithDifferentLanguages:
 
 
 class TestFrenchSourceLanguage:
-    """Test parser with French source language"""
+
 
     def test_french_to_ngiemboon(self):
-        """Should extract French-to-Ngiemboon entries"""
         html = """
         <div class="post">
             <span class="reversalform">abandonner</span>
@@ -195,7 +181,6 @@ class TestFrenchSourceLanguage:
         assert entries[0].translations[0].word == "ńnyé"
 
     def test_french_special_characters(self):
-        """Should handle French special characters in source words"""
         html = """
         <div class="post">
             <span class="reversalform">être</span>
