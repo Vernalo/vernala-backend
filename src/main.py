@@ -5,10 +5,10 @@ from scrapers.scraper import scrape_language
 
 
 async def main() -> None:
-    for key in ("ngiemboon", "bahut", "duala"):
-        language = LANGUAGES[key]
-        print(f"Scraping {language.name.upper()}")
-        await scrape_language(language)
+    for language in LANGUAGES:
+        language_config = LANGUAGES[language]
+        print(f"Scraping {language_config.name.upper()}")
+        await scrape_language(language_config)
 
 
 if __name__ == "__main__":
