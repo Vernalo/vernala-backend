@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from src.scrapers.parser import extract_entries
+from scrapers.parser import extract_entries, extract_total_pages
 
 def test_extract_entries():
     html = """
@@ -18,4 +18,13 @@ def test_extract_entries():
 
     assert len(entries) == 1
     assert entries[0].english == "dog"
-    assert entries[0].ngiemboon[0].word == "mbʉ̀"
+    assert entries[0].vernacular[0].word == "mbʉ̀"
+
+def test_extract_total_pages():
+    html = """
+    <div id="wp_page_numbers">
+        <li class="page_info">Page 1 of 16</li>
+    </div>
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    assert extract_total_pages(soup) == 16
