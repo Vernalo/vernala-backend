@@ -7,8 +7,13 @@ requires-python = ">=3.14"
 dependencies = [
     "aiohttp>=3.13.3",
     "bs4>=0.0.2",
+    "marimo>=0.19.7",
     "requests>=2.32.5",
 ]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 dev = [
@@ -18,3 +23,10 @@ dev = [
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
