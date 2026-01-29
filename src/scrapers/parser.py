@@ -2,7 +2,7 @@ import re
 from bs4 import BeautifulSoup, Tag
 from typing import List
 
-from models import DictionaryEntry, VernacularTranslation
+from .models import DictionaryEntry, VernacularTranslation
 
 
 def extract_total_pages(soup: BeautifulSoup) -> int:

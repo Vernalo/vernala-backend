@@ -26,7 +26,7 @@ source .venv/bin/activate
 
 ```bash
 # Run the scraper
-python src/main.py
+uv run src/main.py
 ```
 
 Output is saved to `scraped_data/{language}/{letter}.json`
