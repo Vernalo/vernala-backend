@@ -2,6 +2,7 @@ import asyncio
 import random
 import aiohttp
 
+from core.logger import logger
 from .config import PAGE_DELAY, LETTER_DELAY, QUERY_TEMPLATE, JITTER_MIN, JITTER_MAX
 from .api import fetch_html
 from .languages import LanguageConfig
@@ -36,7 +37,7 @@ async def scrape_letter(
         entries.extend(extract_entries(soup))
 
     save_letter_json(language.name, letter, entries)
-    print(f"  ✓ {language.name.upper()} {letter.upper()}: {len(entries)} entries")
+    logger.info(f"  ✓ {language.name.upper()} {letter.upper()}: {len(entries)} entries")
 
 
 async def scrape_language(language: LanguageConfig) -> None:
