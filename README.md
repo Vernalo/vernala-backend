@@ -89,3 +89,8 @@ If you encounter import errors, try reinstalling the package:
 ```bash
 uv pip install -e .
 ```
+
+## Data sources
+
+- [Ngiemboon](https://www.webonary.org/ngiemboon/browse/browse-vernacular-english/?lang=en)
+- [Bafut](https://www.webonary.org/bafut/)
