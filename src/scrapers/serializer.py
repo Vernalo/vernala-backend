@@ -21,9 +21,9 @@ def save_letter_json(
             [
                 {
                     "english": e.english,
-                    "ngiemboon": [
+                    language: [
                         {"word": t.word, "link": t.link}
-                        for t in e.ngiemboon
+                        for t in e.vernacular
                     ],
                 }
                 for e in entries
