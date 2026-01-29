@@ -31,8 +31,14 @@ uv run src/main.py
 # Scrape just letter 'a' for Ngiemboon
 uv run src/main.py --language ngiemboon --letter a
 
+# Scrape multiple letters for Ngiemboon
+uv run src/main.py --language ngiemboon --letter a b c
+
 # Scrape all letters for Bafut
 uv run src/main.py --language bafut
+
+# Scrape with French as source language
+uv run src/main.py --language ngiemboon --letter a b --source-language fr
 
 # Show help and available languages
 uv run src/main.py --help
