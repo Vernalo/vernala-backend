@@ -25,8 +25,17 @@ source .venv/bin/activate
 ## Usage
 
 ```bash
-# Run the scraper
+# Run the scraper (scrapes all languages)
 uv run src/main.py
+
+# Scrape just letter 'a' for Ngiemboon
+uv run src/main.py --language ngiemboon --letter a
+
+# Scrape all letters for Bafut
+uv run src/main.py --language bafut
+
+# Show help and available languages
+uv run src/main.py --help
 ```
 
 Output is saved to `scraped_data/{language}/{letter}.json`
