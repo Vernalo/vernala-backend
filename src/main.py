@@ -1,12 +1,14 @@
 import asyncio
-from scrapers.scraper import scrape_all_letters
-# from scrapers.serializer import save_json
+
+from scrapers.languages import LANGUAGES
+from scrapers.scraper import scrape_language
 
 
 async def main() -> None:
-    entries = await scrape_all_letters()
-    # save_json("complete_dictionary.json", entries)
-    print(f"Scraped {len(entries)} entries")
+    for key in ("ngiemboon", "bahut", "duala"):
+        language = LANGUAGES[key]
+        print(f"Scraping {language.name.upper()}")
+        await scrape_language(language)
 
 
 if __name__ == "__main__":
