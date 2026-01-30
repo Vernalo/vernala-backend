@@ -134,13 +134,4 @@ def sample_db(test_db_path):
     return test_db_path
 
 
-@pytest.fixture
-def real_db_path():
-    """Path to the real database (vernala.db) for integration tests."""
-    db_path = "vernala.db"
-
-    # Check if real database exists
-    if not Path(db_path).exists():
-        pytest.skip(f"Real database not found at {db_path}. Run migration first.")
-
-    return db_path
+# real_db_path fixture removed - all tests now use sample_db

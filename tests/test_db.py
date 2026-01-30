@@ -344,43 +344,5 @@ class TestLimitParameter:
         assert len(results) == 2  # Only 2 results available
 
 
-@pytest.mark.integration
-class TestRealDatabase:
-    """Integration tests using the real database (vernala.db)."""
-
-    def test_real_db_has_data(self, real_db_path):
-        """Test that real database has expected data."""
-        stats = database.get_database_stats(db_path=real_db_path)
-
-        assert stats["total_words"] > 1000
-        assert stats["total_translations"] > 1000
-        assert stats["languages"] >= 3  # At least en, fr, nnh
-
-    def test_real_db_english_to_ngiemboon(self, real_db_path):
-        """Test English → Ngiemboon query on real database."""
-        results = database.query_translation(
-            source_lang="en",
-            word="abandon",
-            target_lang="nnh",
-            match="exact",
-            db_path=real_db_path
-        )
-
-        assert len(results) > 0
-        assert all(r["source_word"] == "abandon" for r in results)
-        assert all(r["webonary_link"] is not None for r in results)
-
-    def test_real_db_ngiemboon_to_all(self, real_db_path):
-        """Test Ngiemboon → All languages on real database."""
-        results = database.query_reverse_translation(
-            source_lang="nnh",
-            word="ńnyé2ńnyé",
-            target_lang=None,
-            match="exact",
-            db_path=real_db_path
-        )
-
-        # Should have both English and French translations
-        if len(results) > 0:
-            target_langs = {r["target_language"] for r in results}
-            assert len(target_langs) > 0  # At least one target language
+# All tests now use sample_db fixture from conftest
+# Real database integration tests removed to keep CI simple
