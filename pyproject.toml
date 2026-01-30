@@ -17,6 +17,9 @@ build-backend = "setuptools.build_meta"
 
 [dependency-groups]
 dev = [
+    "altair>=6.0.0",
+    "marimo>=0.19.7",
+    "polars>=1.37.1",
     "pytest>=9.0.2",
     "ruff>=0.14.14",
 ]
