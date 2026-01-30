@@ -15,22 +15,33 @@ def client():
 @pytest.fixture
 def override_db(sample_db):
     """Override database path with test database."""
-    original_path = database.DEFAULT_DB_PATH
-    database.DEFAULT_DB_PATH = sample_db
+    import os
+    from app import dependencies
 
-    # Reload valid languages with test database
-    from app.routes import translate_router
-    translate_router.load_valid_languages()
+    # Store original path
+    original_path = os.environ.get("VERNALA_DB_PATH")
+
+    # Set test database path
+    os.environ["VERNALA_DB_PATH"] = sample_db
+    dependencies.DEFAULT_DB_PATH = sample_db
+
+    # Clear cached dependencies to pick up new database path
+    dependencies.get_translation_repository.cache_clear()
+    dependencies.get_language_repository.cache_clear()
+    dependencies.get_stats_repository.cache_clear()
 
     yield sample_db
 
     # Restore original
-    database.DEFAULT_DB_PATH = original_path
-    try:
-        translate_router.load_valid_languages()
-    except Exception:
-        # Ignore errors on cleanup if DB doesn't exist
-        pass
+    if original_path:
+        os.environ["VERNALA_DB_PATH"] = original_path
+    else:
+        os.environ.pop("VERNALA_DB_PATH", None)
+
+    # Clear cache again to reset
+    dependencies.get_translation_repository.cache_clear()
+    dependencies.get_language_repository.cache_clear()
+    dependencies.get_stats_repository.cache_clear()
 
 
 class TestHealthEndpoint:

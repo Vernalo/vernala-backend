@@ -2,28 +2,9 @@
 
 from fastapi import APIRouter, Query, HTTPException
 from app.models import TranslateResponse, QueryInfo, TranslationResult, ErrorResponse
-from db import database
+from app.dependencies import TranslationRepositoryDep, LanguageRepositoryDep
 
 router = APIRouter(prefix="/translate", tags=["Translation"])
-
-
-# Valid language codes (loaded from database on startup)
-VALID_LANGUAGES: set[str] = set()
-
-
-def load_valid_languages():
-    """Load valid language codes from database."""
-    global VALID_LANGUAGES
-    try:
-        lang_info = database.get_supported_languages()
-        VALID_LANGUAGES = {lang["code"] for lang in lang_info["languages"]}
-    except Exception:
-        # Fallback if database not available
-        VALID_LANGUAGES = {"en", "fr", "nnh", "bfd"}
-
-
-# Load languages on module import
-load_valid_languages()
 
 
 @router.get(
@@ -55,6 +36,8 @@ load_valid_languages()
     """
 )
 async def translate(
+    translation_repo: TranslationRepositoryDep,
+    language_repo: LanguageRepositoryDep,
     source: str = Query(
         ...,
         min_length=2,
@@ -95,42 +78,37 @@ async def translate(
 
     Returns a list of translation results with webonary links for African languages.
     """
+    # Get valid languages from repository (cached)
+    valid_languages = language_repo.get_language_codes()
+
     # Validate language codes
-    if source not in VALID_LANGUAGES:
+    if source not in valid_languages:
         raise HTTPException(
             status_code=400,
-            detail=f"Unsupported source language: {source}. Valid codes: {', '.join(sorted(VALID_LANGUAGES))}"
+            detail=f"Unsupported source language: {source}. Valid codes: {', '.join(sorted(valid_languages))}"
         )
 
-    if target and target not in VALID_LANGUAGES:
+    if target and target not in valid_languages:
         raise HTTPException(
             status_code=400,
-            detail=f"Unsupported target language: {target}. Valid codes: {', '.join(sorted(VALID_LANGUAGES))}"
+            detail=f"Unsupported target language: {target}. Valid codes: {', '.join(sorted(valid_languages))}"
         )
 
     # Determine translation direction
     # African languages (nnh, bfd, etc.) need reverse lookup when they're the source
     is_african_source = source not in {"en", "fr"}
+    direction = "reverse" if is_african_source else "forward"
 
     try:
-        if is_african_source:
-            # Reverse lookup: African language → English/French
-            results = database.query_reverse_translation(
-                source_lang=source,
-                word=word,
-                target_lang=target,
-                match=match,  # type: ignore
-                limit=limit
-            )
-        else:
-            # Forward lookup: English/French → African language
-            results = database.query_translation(
-                source_lang=source,
-                word=word,
-                target_lang=target,
-                match=match,  # type: ignore
-                limit=limit
-            )
+        # Query using repository with direction parameter
+        results = translation_repo.query_translations(
+            source_lang=source,
+            word=word,
+            target_lang=target,
+            match=match,  # type: ignore
+            limit=limit,
+            direction=direction  # type: ignore
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 

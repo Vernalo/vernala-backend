@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, HTTPException
 from app.models import LanguagesResponse, LanguageInfo, ErrorResponse
-from db import database
+from app.dependencies import LanguageRepositoryDep
 
 router = APIRouter(prefix="/languages", tags=["Languages"])
 
@@ -26,7 +26,9 @@ router = APIRouter(prefix="/languages", tags=["Languages"])
     Note: African languages can be both source and target for bidirectional lookups.
     """
 )
-async def get_languages() -> LanguagesResponse:
+async def get_languages(
+    language_repo: LanguageRepositoryDep
+) -> LanguagesResponse:
     """
     Get all supported languages with metadata.
 
@@ -34,7 +36,7 @@ async def get_languages() -> LanguagesResponse:
         LanguagesResponse with list of languages and their details
     """
     try:
-        lang_info = database.get_supported_languages()
+        lang_info = language_repo.get_all_languages()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 

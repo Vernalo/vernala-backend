@@ -1,21 +1,52 @@
 """
 Database query layer for Vernala translation API.
 
+DEPRECATED: This module provides backward-compatible functions.
+New code should use repositories from db.repositories instead.
+
 Provides functions to query translations between languages using SQLite.
 """
 
 import sqlite3
-from pathlib import Path
 from typing import Literal
-
-# Import language configs for metadata
-from scrapers.languages import LANGUAGES
-
+from db.repositories import TranslationRepository, LanguageRepository, StatsRepository
 
 # Database path (configurable)
 DEFAULT_DB_PATH = "vernala.db"
 
 MatchType = Literal["exact", "prefix", "contains"]
+
+# Singleton repository instances for backward compatibility
+_translation_repo: TranslationRepository | None = None
+_language_repo: LanguageRepository | None = None
+_stats_repo: StatsRepository | None = None
+
+
+def _get_translation_repo(db_path: str | None = None) -> TranslationRepository:
+    """Get or create translation repository singleton."""
+    global _translation_repo
+    actual_path = db_path or DEFAULT_DB_PATH
+    if _translation_repo is None or _translation_repo.db_path != actual_path:
+        _translation_repo = TranslationRepository(actual_path)
+    return _translation_repo
+
+
+def _get_language_repo(db_path: str | None = None) -> LanguageRepository:
+    """Get or create language repository singleton."""
+    global _language_repo
+    actual_path = db_path or DEFAULT_DB_PATH
+    if _language_repo is None or _language_repo.db_path != actual_path:
+        _language_repo = LanguageRepository(actual_path)
+    return _language_repo
+
+
+def _get_stats_repo(db_path: str | None = None) -> StatsRepository:
+    """Get or create stats repository singleton."""
+    global _stats_repo
+    actual_path = db_path or DEFAULT_DB_PATH
+    if _stats_repo is None or _stats_repo.db_path != actual_path:
+        _stats_repo = StatsRepository(actual_path)
+    return _stats_repo
 
 
 def get_connection(db_path: str | None = None) -> sqlite3.Connection:
@@ -46,6 +77,8 @@ def query_translation(
     """
     Query translations for a word from source language to target language(s).
 
+    DEPRECATED: Use TranslationRepository.query_translations() with direction='forward'.
+
     Args:
         source_lang: Source language code (e.g., 'en', 'fr', 'nnh')
         word: Word to translate
@@ -62,69 +95,15 @@ def query_translation(
             - target_language: Target language code
             - webonary_link: Link to webonary (if target is African language)
     """
-    conn = get_connection(db_path)
-    cursor = conn.cursor()
-
-    try:
-        # Build the WHERE clause based on match type
-        word_normalized = word.lower()
-
-        if match == "exact":
-            word_condition = "source.word_normalized = ?"
-            word_param = word_normalized
-        elif match == "prefix":
-            word_condition = "source.word_normalized LIKE ?"
-            word_param = f"{word_normalized}%"
-        elif match == "contains":
-            word_condition = "source.word_normalized LIKE ?"
-            word_param = f"%{word_normalized}%"
-        else:
-            raise ValueError(f"Invalid match type: {match}")
-
-        # Build target language condition
-        if target_lang:
-            target_condition = "AND target.language_code = ?"
-            params = [source_lang, word_param, target_lang, limit]
-        else:
-            target_condition = ""
-            params = [source_lang, word_param, limit]
-
-        # Query for translations
-        query = f"""
-            SELECT
-                source.word as source_word,
-                source.language_code as source_language,
-                target.word as target_word,
-                target.language_code as target_language,
-                target.webonary_link as webonary_link
-            FROM words source
-            JOIN translations t ON source.id = t.source_word_id
-            JOIN words target ON t.target_word_id = target.id
-            WHERE source.language_code = ?
-              AND {word_condition}
-              {target_condition}
-            ORDER BY target.word
-            LIMIT ?
-        """
-
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-
-        # Convert to list of dicts
-        results = []
-        for row in rows:
-            results.append({
-                "source_word": row["source_word"],
-                "source_language": row["source_language"],
-                "target_word": row["target_word"],
-                "target_language": row["target_language"],
-                "webonary_link": row["webonary_link"]
-            })
-
-        return results
-
-    finally:
-        conn.close()
+    repo = _get_translation_repo(db_path)
+    return repo.query_translations(
+        source_lang=source_lang,
+        word=word,
+        target_lang=target_lang,
+        match=match,  # type: ignore
+        limit=limit,
+        direction="forward"
+    )
 
 
 def query_reverse_translation(
@@ -137,6 +116,8 @@ def query_reverse_translation(
 ) -> list[dict]:
     """
     Query reverse translations (e.g., Ngiemboon → English/French).
+
+    DEPRECATED: Use TranslationRepository.query_translations() with direction='reverse'.
 
     This queries in the opposite direction from query_translation.
     For African languages with webonary links, this finds what English/French
@@ -153,74 +134,22 @@ def query_reverse_translation(
     Returns:
         List of translation dictionaries
     """
-    conn = get_connection(db_path)
-    cursor = conn.cursor()
-
-    try:
-        # Build WHERE clause based on match type
-        word_normalized = word.lower()
-
-        if match == "exact":
-            word_condition = "source.word_normalized = ?"
-            word_param = word_normalized
-        elif match == "prefix":
-            word_condition = "source.word_normalized LIKE ?"
-            word_param = f"{word_normalized}%"
-        elif match == "contains":
-            word_condition = "source.word_normalized LIKE ?"
-            word_param = f"%{word_normalized}%"
-        else:
-            raise ValueError(f"Invalid match type: {match}")
-
-        # Build target language condition
-        if target_lang:
-            target_condition = "AND target.language_code = ?"
-            params = [source_lang, word_param, target_lang, limit]
-        else:
-            target_condition = ""
-            params = [source_lang, word_param, limit]
-
-        # Query for reverse translations (swap source and target in JOIN)
-        query = f"""
-            SELECT
-                source.word as source_word,
-                source.language_code as source_language,
-                target.word as target_word,
-                target.language_code as target_language,
-                source.webonary_link as webonary_link
-            FROM words source
-            JOIN translations t ON source.id = t.target_word_id
-            JOIN words target ON t.source_word_id = target.id
-            WHERE source.language_code = ?
-              AND {word_condition}
-              {target_condition}
-            ORDER BY target.word
-            LIMIT ?
-        """
-
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-
-        # Convert to list of dicts
-        results = []
-        for row in rows:
-            results.append({
-                "source_word": row["source_word"],
-                "source_language": row["source_language"],
-                "target_word": row["target_word"],
-                "target_language": row["target_language"],
-                "webonary_link": row["webonary_link"]
-            })
-
-        return results
-
-    finally:
-        conn.close()
+    repo = _get_translation_repo(db_path)
+    return repo.query_translations(
+        source_lang=source_lang,
+        word=word,
+        target_lang=target_lang,
+        match=match,  # type: ignore
+        limit=limit,
+        direction="reverse"
+    )
 
 
 def get_supported_languages(db_path: str | None = None) -> dict:
     """
     Get list of all supported languages in the database.
+
+    DEPRECATED: Use LanguageRepository.get_all_languages().
 
     Returns:
         Dictionary with keys:
@@ -233,64 +162,15 @@ def get_supported_languages(db_path: str | None = None) -> dict:
             - type: 'source' or 'target' (African languages can be both)
             - word_count: Number of words in this language
     """
-    conn = get_connection(db_path)
-    cursor = conn.cursor()
-
-    try:
-        # Get all language codes and word counts from database
-        cursor.execute("""
-            SELECT language_code, COUNT(*) as word_count
-            FROM words
-            GROUP BY language_code
-            ORDER BY language_code
-        """)
-
-        rows = cursor.fetchall()
-
-        languages = []
-        for row in rows:
-            lang_code = row["language_code"]
-            word_count = row["word_count"]
-
-            # Determine language name and type
-            if lang_code == "en":
-                name = "English"
-                lang_type = "source"
-            elif lang_code == "fr":
-                name = "French"
-                lang_type = "source"
-            else:
-                # African language - find name from config
-                name = None
-                for lang_config in LANGUAGES.values():
-                    if lang_config.lang_code == lang_code:
-                        name = lang_config.name.capitalize()
-                        break
-
-                if not name:
-                    name = lang_code.upper()  # Fallback
-
-                lang_type = "target"
-
-            languages.append({
-                "code": lang_code,
-                "name": name,
-                "type": lang_type,
-                "word_count": word_count
-            })
-
-        return {
-            "languages": languages,
-            "count": len(languages)
-        }
-
-    finally:
-        conn.close()
+    repo = _get_language_repo(db_path)
+    return repo.get_all_languages()
 
 
 def get_database_stats(db_path: str | None = None) -> dict:
     """
     Get statistics about the database.
+
+    DEPRECATED: Use StatsRepository.get_stats().
 
     Returns:
         Dictionary with database statistics:
@@ -299,31 +179,5 @@ def get_database_stats(db_path: str | None = None) -> dict:
             - languages: Number of languages
             - db_size_bytes: Database file size in bytes
     """
-    conn = get_connection(db_path)
-    cursor = conn.cursor()
-
-    try:
-        # Count words
-        cursor.execute("SELECT COUNT(*) as count FROM words")
-        total_words = cursor.fetchone()["count"]
-
-        # Count translations
-        cursor.execute("SELECT COUNT(*) as count FROM translations")
-        total_translations = cursor.fetchone()["count"]
-
-        # Count languages
-        cursor.execute("SELECT COUNT(DISTINCT language_code) as count FROM words")
-        language_count = cursor.fetchone()["count"]
-
-        # Get file size
-        db_size = Path(db_path).stat().st_size if Path(db_path).exists() else 0
-
-        return {
-            "total_words": total_words,
-            "total_translations": total_translations,
-            "languages": language_count,
-            "db_size_bytes": db_size
-        }
-
-    finally:
-        conn.close()
+    repo = _get_stats_repo(db_path)
+    return repo.get_stats()
