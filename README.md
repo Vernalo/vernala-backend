@@ -78,6 +78,15 @@ uv run edit notebooks/exploration.py
 
 ```
 
+## Migrating JSON files to SQLite
+
+```bash
+# Run the migration
+uv run python src/db/migrate.py
+
+# Query the database
+sqlite3 vernala.db "SELECT * FROM words WHERE language_code = 'nnh' LIMIT 5"
+```
 
 ## Adding Languages
 
