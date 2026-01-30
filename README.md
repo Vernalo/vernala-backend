@@ -42,6 +42,9 @@ uv run src/main.py --language ngiemboon --letter a b --source-language fr
 
 # Show help and available languages
 uv run src/main.py --help
+
+# Run the FastAPI server
+uv run uvicorn src.app.main:app --reload
 ```
 
 Output is saved to `scraped_data/{language}/{letter}.json`
