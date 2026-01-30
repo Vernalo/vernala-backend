@@ -18,16 +18,18 @@ DEFAULT_DB_PATH = "vernala.db"
 MatchType = Literal["exact", "prefix", "contains"]
 
 
-def get_connection(db_path: str = DEFAULT_DB_PATH) -> sqlite3.Connection:
+def get_connection(db_path: str | None = None) -> sqlite3.Connection:
     """
     Get a connection to the SQLite database.
 
     Args:
-        db_path: Path to the SQLite database file
+        db_path: Path to the SQLite database file (uses DEFAULT_DB_PATH if None)
 
     Returns:
         sqlite3.Connection configured for dictionary access
     """
+    if db_path is None:
+        db_path = DEFAULT_DB_PATH
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row  # Enable column access by name
     return conn
@@ -39,7 +41,7 @@ def query_translation(
     target_lang: str | None = None,
     match: MatchType = "exact",
     limit: int = 10,
-    db_path: str = DEFAULT_DB_PATH
+    db_path: str | None = None
 ) -> list[dict]:
     """
     Query translations for a word from source language to target language(s).
@@ -131,7 +133,7 @@ def query_reverse_translation(
     target_lang: str | None = None,
     match: MatchType = "exact",
     limit: int = 10,
-    db_path: str = DEFAULT_DB_PATH
+    db_path: str | None = None
 ) -> list[dict]:
     """
     Query reverse translations (e.g., Ngiemboon → English/French).
@@ -216,7 +218,7 @@ def query_reverse_translation(
         conn.close()
 
 
-def get_supported_languages(db_path: str = DEFAULT_DB_PATH) -> dict:
+def get_supported_languages(db_path: str | None = None) -> dict:
     """
     Get list of all supported languages in the database.
 
@@ -286,7 +288,7 @@ def get_supported_languages(db_path: str = DEFAULT_DB_PATH) -> dict:
         conn.close()
 
 
-def get_database_stats(db_path: str = DEFAULT_DB_PATH) -> dict:
+def get_database_stats(db_path: str | None = None) -> dict:
     """
     Get statistics about the database.
 
