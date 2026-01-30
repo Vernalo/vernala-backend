@@ -12,8 +12,6 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 # Import language configs to map folder names to ISO 639-3 codes
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.languages import LANGUAGES
 
 
