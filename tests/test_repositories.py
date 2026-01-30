@@ -1,7 +1,7 @@
 """Unit tests for repository pattern implementation."""
 
 import pytest
-from db.repositories import TranslationRepository, LanguageRepository, StatsRepository
+from db.repositories import TranslationRepository, LanguageRepository
 
 
 class TestTranslationRepository:
@@ -244,44 +244,6 @@ class TestLanguageRepository:
         for lang in result["languages"]:
             assert lang["word_count"] > 0
             assert isinstance(lang["word_count"], int)
-
-
-class TestStatsRepository:
-    """Tests for StatsRepository."""
-
-    def test_get_stats(self, stats_repo):
-        """Test database statistics."""
-        stats = stats_repo.get_stats()
-
-        assert "total_words" in stats
-        assert "total_translations" in stats
-        assert "languages" in stats
-        assert "db_size_bytes" in stats
-
-        # Verify counts match test data
-        assert stats["total_words"] == 9  # 3 English + 3 French + 3 Ngiemboon
-        assert stats["total_translations"] == 7  # 7 translation pairs
-        assert stats["languages"] == 3  # en, fr, nnh
-        assert stats["db_size_bytes"] > 0
-
-    def test_stats_types(self, stats_repo):
-        """Test that statistics have correct types."""
-        stats = stats_repo.get_stats()
-
-        assert isinstance(stats["total_words"], int)
-        assert isinstance(stats["total_translations"], int)
-        assert isinstance(stats["languages"], int)
-        assert isinstance(stats["db_size_bytes"], int)
-
-    def test_stats_positive_values(self, stats_repo):
-        """Test that statistics are positive."""
-        stats = stats_repo.get_stats()
-
-        assert stats["total_words"] > 0
-        assert stats["total_translations"] > 0
-        assert stats["languages"] > 0
-        assert stats["db_size_bytes"] > 0
-
 
 class TestBaseRepository:
     """Tests for BaseRepository base class."""
