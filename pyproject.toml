@@ -20,6 +20,7 @@ build-backend = "setuptools.build_meta"
 [dependency-groups]
 dev = [
     "altair>=6.0.0",
+    "httpx>=0.28.1",
     "marimo>=0.19.7",
     "polars>=1.37.1",
     "pytest>=9.0.2",
@@ -28,6 +29,9 @@ dev = [
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+markers = [
+    "integration: marks tests as integration tests (require real database)",
+]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

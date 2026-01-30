@@ -88,6 +88,78 @@ uv run python src/db/migrate.py
 sqlite3 vernala.db "SELECT * FROM words WHERE language_code = 'nnh' LIMIT 5"
 ```
 
+## Translation API
+
+### Starting the API Server
+
+```bash
+# Make sure you've created the database first
+uv run python src/db/migrate.py
+
+# Start the API server
+uv run python -m app.main
+```
+
+The server will start at `http://localhost:8000`
+
+### Interactive API Documentation
+
+FastAPI provides automatic interactive documentation:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+### API Endpoints
+
+#### Health Check
+```bash
+curl http://localhost:8000/health
+```
+
+#### Get Supported Languages
+```bash
+curl http://localhost:8000/languages
+```
+
+#### Translate Words
+
+**English → Ngiemboon:**
+```bash
+curl "http://localhost:8000/translate?source=en&target=nnh&word=abandon"
+```
+
+**French → Ngiemboon:**
+```bash
+curl "http://localhost:8000/translate?source=fr&target=nnh&word=abandonner"
+```
+
+**Ngiemboon → English (Reverse):**
+```bash
+curl "http://localhost:8000/translate?source=nnh&target=en&word=ńnyé2ńnyé"
+```
+
+**Ngiemboon → All Languages (Bidirectional):**
+```bash
+curl "http://localhost:8000/translate?source=nnh&word=ńnyé2ńnyé"
+```
+
+**Prefix Search (Autocomplete):**
+```bash
+curl "http://localhost:8000/translate?source=en&target=nnh&word=aban&match=prefix&limit=5"
+```
+
+**Query Parameters:**
+- `source` (required): Source language code (e.g., "en", "fr", "nnh")
+- `word` (required): Word to translate
+- `target` (optional): Target language code; omit for all languages
+- `match` (optional): Match type - "exact" (default), "prefix", or "contains"
+- `limit` (optional): Max results (1-100, default 10)
+
+**Language Codes:**
+- `en` - English
+- `fr` - French (Français)
+- `nnh` - Ngiemboon
+- `bfd` - Bafut (if scraped)
+
 ## Adding Languages
 
 Add a new `LanguageConfig` entry to `LANGUAGES` in [src/scrapers/languages.py](src/scrapers/languages.py) with the language's webonary.org base URL.
