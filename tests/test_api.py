@@ -3,7 +3,6 @@
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
-from db import database
 
 
 @pytest.fixture
@@ -28,7 +27,6 @@ def override_db(sample_db):
     # Clear cached dependencies to pick up new database path
     dependencies.get_translation_repository.cache_clear()
     dependencies.get_language_repository.cache_clear()
-    dependencies.get_stats_repository.cache_clear()
 
     yield sample_db
 
@@ -41,7 +39,6 @@ def override_db(sample_db):
     # Clear cache again to reset
     dependencies.get_translation_repository.cache_clear()
     dependencies.get_language_repository.cache_clear()
-    dependencies.get_stats_repository.cache_clear()
 
 
 class TestHealthEndpoint:
@@ -333,7 +330,3 @@ class TestTranslateEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert len(data["results"]) <= 10
-
-
-# All tests now use sample_db fixture from conftest via override_db
-# Real database integration tests removed to keep CI simple

@@ -1,7 +1,7 @@
 """Repository for translation queries."""
 
 from typing import Literal
-from db.repositories.base import BaseRepository
+from .base import BaseRepository
 
 MatchType = Literal["exact", "prefix", "contains"]
 DirectionType = Literal["forward", "reverse"]

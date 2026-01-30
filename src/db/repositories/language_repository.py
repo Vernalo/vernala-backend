@@ -1,6 +1,6 @@
 """Repository for language metadata queries."""
 
-from db.repositories.base import BaseRepository
+from .base import BaseRepository
 
 
 class LanguageRepository(BaseRepository):

@@ -283,7 +283,5 @@ class TestBaseRepository:
 
         repo = BaseRepository(sample_db)
         assert repo.db_path == sample_db
-
-        # Test default path
         default_repo = BaseRepository()
         assert default_repo.db_path == "vernala.db"
