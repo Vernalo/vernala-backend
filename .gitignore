@@ -210,3 +210,7 @@ __marimo__/
 scraped_data/
 
 page_source.html
+
+# SQLite databases
+*.db
+*.db-journal
