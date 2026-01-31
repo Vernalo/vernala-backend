@@ -214,3 +214,6 @@ page_source.html
 # SQLite databases
 *.db
 *.db-journal
+
+# Docker volume data
+data/
