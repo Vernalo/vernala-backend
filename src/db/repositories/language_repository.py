@@ -1,6 +1,7 @@
 """Repository for language metadata queries."""
 
 from .base import BaseRepository
+from db.query_builders import LanguageQueryBuilder
 
 
 class LanguageRepository(BaseRepository):
@@ -16,6 +17,7 @@ class LanguageRepository(BaseRepository):
         """
         super().__init__(db_path)
         self.language_config = language_config or self._load_default_config()
+        self._query_builder = LanguageQueryBuilder()
 
     def _load_default_config(self) -> dict:
         """
@@ -54,17 +56,12 @@ class LanguageRepository(BaseRepository):
                 "count": 2
             }
         """
-        query = """
-            SELECT language_code, COUNT(*) as word_count
-            FROM words
-            GROUP BY language_code
-            ORDER BY language_code
-        """
+        # Build query using query builder
+        query_result = self._query_builder.build_all_languages_query()
 
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute(query)
-            rows = cursor.fetchall()
+            rows = query_result.execute(cursor)
 
             languages = []
             for row in rows:
