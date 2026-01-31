@@ -5,8 +5,8 @@ import sys
 import aiohttp
 
 from core.logger import logger
-from scrapers.languages import LANGUAGES
-from scrapers.scraper import scrape_language, scrape_letter
+from .scrapers.languages import LANGUAGES
+from .scrapers.scraper import scrape_language, scrape_letter
 
 EPILOG = f"""
 Available languages:
