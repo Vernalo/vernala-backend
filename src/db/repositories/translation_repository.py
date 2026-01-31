@@ -1,7 +1,7 @@
 """Repository for translation queries."""
 
 from .base import BaseRepository
-from db.query_builders import TranslationQueryBuilder, MatchType, DirectionType
+from ..query_builders import TranslationQueryBuilder, MatchType, DirectionType
 
 
 class TranslationRepository(BaseRepository):

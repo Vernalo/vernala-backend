@@ -1,31 +1,14 @@
-"""Repository for language metadata queries."""
-
 from .base import BaseRepository
-from db.query_builders import LanguageQueryBuilder
+from ..query_builders import LanguageQueryBuilder
 
 
 class LanguageRepository(BaseRepository):
-    """Repository for language metadata queries."""
-
     def __init__(self, db_path: str | None = None, language_config: dict | None = None):
-        """
-        Initialize language repository.
-
-        Args:
-            db_path: Path to SQLite database file
-            language_config: Language configuration dict (optional, loaded from scrapers.languages if None)
-        """
         super().__init__(db_path)
         self.language_config = language_config or self._load_default_config()
         self._query_builder = LanguageQueryBuilder()
 
     def _load_default_config(self) -> dict:
-        """
-        Load language configuration from scrapers package.
-
-        Returns:
-            Dictionary of language configurations
-        """
         try:
             from scrapers.languages import LANGUAGES
             return LANGUAGES
@@ -33,30 +16,6 @@ class LanguageRepository(BaseRepository):
             return {}
 
     def get_all_languages(self) -> dict:
-        """
-        Get all supported languages with metadata.
-
-        Returns:
-            Dictionary with keys:
-                - languages: List of language info dicts
-                - count: Total number of languages
-
-        Each language dict contains:
-                - code: Language code (e.g., 'en', 'fr', 'nnh')
-                - name: Human-readable name
-                - type: 'source' or 'target'
-                - word_count: Number of words in this language
-
-        Example:
-            {
-                "languages": [
-                    {"code": "en", "name": "English", "type": "source", "word_count": 1234},
-                    {"code": "nnh", "name": "Ngiemboon", "type": "target", "word_count": 5678}
-                ],
-                "count": 2
-            }
-        """
-        # Build query using query builder
         query_result = self._query_builder.build_all_languages_query()
 
         with self.get_connection() as conn:

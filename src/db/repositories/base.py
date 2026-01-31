@@ -1,5 +1,3 @@
-"""Base repository with shared connection management."""
-
 import sqlite3
 from contextlib import contextmanager
 from typing import Protocol, runtime_checkable
