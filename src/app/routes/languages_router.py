@@ -1,5 +1,3 @@
-"""Languages API endpoint."""
-
 from fastapi import APIRouter, HTTPException
 from app.models import LanguagesResponse, LanguageInfo, ErrorResponse
 from app.dependencies import LanguageRepositoryDep
@@ -14,17 +12,6 @@ router = APIRouter(prefix="/languages", tags=["Languages"])
         500: {"model": ErrorResponse, "description": "Database error"}
     },
     summary="Get supported languages",
-    description="""
-    Get a list of all supported languages in the translation database.
-
-    Returns language codes, names, types (source/target), and word counts.
-
-    **Language Types:**
-    - `source`: Languages you can translate FROM (English, French)
-    - `target`: Languages you can translate TO (African languages like Ngiemboon, Bafut)
-
-    Note: African languages can be both source and target for bidirectional lookups.
-    """
 )
 async def get_languages(
     language_repo: LanguageRepositoryDep
