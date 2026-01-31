@@ -10,7 +10,7 @@ class LanguageRepository(BaseRepository):
 
     def _load_default_config(self) -> dict:
         try:
-            from scrapers.languages import LANGUAGES
+            from cli.scrapers.languages import LANGUAGES
             return LANGUAGES
         except ImportError:
             return {}

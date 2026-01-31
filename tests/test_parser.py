@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from scrapers.parser import extract_total_pages, extract_translations, extract_entries
+from cli.scrapers.parser import extract_total_pages, extract_translations, extract_entries
 
 class TestExtractTotalPages:
     

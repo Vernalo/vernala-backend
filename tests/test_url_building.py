@@ -1,5 +1,5 @@
-from scrapers.config import build_query_params
-from scrapers.languages import LANGUAGES
+from cli.scrapers.config import build_query_params
+from cli.scrapers.languages import LANGUAGES
 
 
 class TestBuildQueryParams:

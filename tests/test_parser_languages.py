@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import pytest
 
-from scrapers.parser import extract_translations, extract_entries
+from cli.scrapers.parser import extract_translations, extract_entries
 
 
 class TestMultipleLanguageCodes:
