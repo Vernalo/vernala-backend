@@ -36,16 +36,6 @@ class LanguageRepository(BaseRepository):
             }
 
     def _get_language_info(self, lang_code: str, word_count: int) -> dict:
-        """
-        Get language information from code.
-
-        Args:
-            lang_code: Language code (e.g., 'en', 'fr', 'nnh')
-            word_count: Number of words in this language
-
-        Returns:
-            Dictionary with language metadata
-        """
         if lang_code == "en":
             return {
                 "code": lang_code,
@@ -71,29 +61,11 @@ class LanguageRepository(BaseRepository):
             }
 
     def _find_language_name(self, lang_code: str) -> str:
-        """
-        Find language name from configuration.
-
-        Args:
-            lang_code: Language code to look up
-
-        Returns:
-            Human-readable language name (defaults to uppercase code if not found)
-        """
         for lang_config in self.language_config.values():
             if lang_config.lang_code == lang_code:
                 return lang_config.name.capitalize()
-        return lang_code.upper()  # Fallback
+        return lang_code.upper()
 
     def get_language_codes(self) -> set[str]:
-        """
-        Get set of all language codes in database.
-
-        Returns:
-            Set of language code strings
-
-        Example:
-            {'en', 'fr', 'nnh', 'bfd'}
-        """
         languages = self.get_all_languages()
         return {lang["code"] for lang in languages["languages"]}

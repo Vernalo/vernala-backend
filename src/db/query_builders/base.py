@@ -1,5 +1,3 @@
-"""Base classes for query builders."""
-
 from dataclasses import dataclass
 from typing import Protocol, Sequence, Any
 

@@ -34,15 +34,6 @@ class TranslationQueryBuilder:
         )
 
     def with_limit(self, limit: int) -> "TranslationQueryBuilder":
-        """
-        Create a new builder with a different limit.
-
-        Args:
-            limit: Maximum number of results
-
-        Returns:
-            New TranslationQueryBuilder instance
-        """
         return TranslationQueryBuilder(
             source_lang=self.source_lang,
             word=self.word,
@@ -53,11 +44,6 @@ class TranslationQueryBuilder:
         )
 
     def _build_word_condition(self, word_normalized: str) -> tuple[str, str]:
-        """
-        Build WHERE clause for word matching.
-        Returns:
-            Tuple of (SQL condition, parameter value)
-        """
         if self.match == "exact":
             return "source.word_normalized = ?", word_normalized
         elif self.match == "prefix":
@@ -70,15 +56,6 @@ class TranslationQueryBuilder:
             )
 
     def _build_params(self, word_param: str) -> tuple[str, list]:
-        """
-        Build target language condition and complete parameter list.
-
-        Args:
-            word_param: Word parameter value from _build_word_condition
-
-        Returns:
-            Tuple of (target condition SQL, full parameter list)
-        """
         if self.target_lang:
             condition = "AND target.language_code = ?"
             params = [self.source_lang, word_param, self.target_lang, self.limit]
@@ -89,18 +66,7 @@ class TranslationQueryBuilder:
         return condition, params
 
     def _build_query(self, word_condition: str, target_condition: str) -> str:
-        """
-        Build complete SQL query based on direction.
-
-        Args:
-            word_condition: Word WHERE clause
-            target_condition: Target language WHERE clause
-
-        Returns:
-            Complete SQL query string
-        """
         if self.direction == "forward":
-            # Forward lookup: English/French → African languages
             return f"""
                 SELECT
                     source.word as source_word,
@@ -118,7 +84,6 @@ class TranslationQueryBuilder:
                 LIMIT ?
             """
         else:  # reverse
-            # Reverse lookup: African languages → English/French
             return f"""
                 SELECT
                     source.word as source_word,

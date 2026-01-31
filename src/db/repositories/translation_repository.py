@@ -1,11 +1,8 @@
-"""Repository for translation queries."""
-
 from .base import BaseRepository
 from ..query_builders import TranslationQueryBuilder, MatchType, DirectionType
 
 
 class TranslationRepository(BaseRepository):
-    """Repository for translation queries."""
 
     def query_translations(
         self,

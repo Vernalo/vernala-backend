@@ -34,17 +34,6 @@ def setup_logger(
     level: int = logging.INFO,
     use_colors: bool = True,
 ) -> logging.Logger:
-    """
-    Configure and return a logger instance.
-
-    Args:
-        name: Logger name (default: "vernala")
-        level: Logging level (default: INFO)
-        use_colors: Whether to use colored output (default: True)
-
-    Returns:
-        Configured logger instance
-    """
     logger = logging.getLogger(name)
 
     if logger.handlers:
@@ -75,15 +64,6 @@ logger = setup_logger()
 
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
-    """
-    Get a logger instance.
-
-    Args:
-        name: Optional logger name. If None, returns the default logger.
-
-    Returns:
-        Logger instance
-    """
     if name:
         return logging.getLogger(f"vernala.{name}")
     return logger
