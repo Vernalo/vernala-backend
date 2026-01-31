@@ -243,10 +243,6 @@ docker exec -it vernala-api bash
 sqlite3 /app/data/vernala.db "SELECT COUNT(*) FROM words"
 ```
 
-### Optional: SQLite Web Viewer
-
-Uncomment the `db-viewer` service in [docker-compose.yml](docker-compose.yml) to add a web-based SQLite browser at `http://localhost:8080`.
-
 ## Adding Languages
 
 Add a new `LanguageConfig` entry to `LANGUAGES` in [src/scrapers/languages.py](src/scrapers/languages.py) with the language's webonary.org base URL.

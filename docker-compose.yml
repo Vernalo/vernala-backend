@@ -7,9 +7,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # Mount the database directory for persistence
       - ./data:/app/data
-      # Optional: mount scraped_data if needed
       - ./scraped_data:/app/scraped_data:ro
     environment:
       - VERNALA_DB_PATH=/app/data/vernala.db
@@ -21,21 +19,6 @@ services:
       timeout: 3s
       retries: 3
       start_period: 5s
-
-  # Optional: Add a simple database viewer/admin tool
-  # Uncomment if you want a web UI to browse the SQLite database
-  # db-viewer:
-  #   image: coleifer/sqlite-web
-  #   container_name: vernala-db-viewer
-  #   ports:
-  #     - "8080:8080"
-  #   volumes:
-  #     - ./data:/data
-  #   environment:
-  #     - SQLITE_DATABASE=/data/vernala.db
-  #   depends_on:
-  #     - api
-  #   restart: unless-stopped
 
 volumes:
   data:
