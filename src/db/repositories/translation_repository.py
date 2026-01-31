@@ -1,10 +1,7 @@
 """Repository for translation queries."""
 
-from typing import Literal
 from .base import BaseRepository
-
-MatchType = Literal["exact", "prefix", "contains"]
-DirectionType = Literal["forward", "reverse"]
+from ..query_builders import TranslationQueryBuilder, MatchType, DirectionType
 
 
 class TranslationRepository(BaseRepository):
@@ -53,122 +50,24 @@ class TranslationRepository(BaseRepository):
             # Bidirectional: Ngiemboon → All languages
             repo.query_translations("nnh", "ńnyé2ńnyé", direction="reverse")
         """
-        word_normalized = word.lower()
-
-        # Build word condition based on match type
-        word_condition, word_param = self._build_word_condition(word_normalized, match)
-
-        # Build target language condition
-        target_condition, params = self._build_target_condition(
-            source_lang, word_param, target_lang, limit
+        # Build query using query builder
+        builder = TranslationQueryBuilder(
+            source_lang=source_lang,
+            word=word,
+            direction=direction,
+            target_lang=target_lang,
+            match=match,
+            limit=limit
         )
 
-        # Build query based on direction
-        query = self._build_query(direction, word_condition, target_condition)
+        query_result = builder.build()
 
         # Execute and convert to dicts
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute(query, params)
-            rows = cursor.fetchall()
+            rows = query_result.execute(cursor)
 
             return self._rows_to_dicts(rows)
-
-    def _build_word_condition(self, word_normalized: str, match: MatchType) -> tuple[str, str]:
-        """
-        Build WHERE clause for word matching.
-
-        Args:
-            word_normalized: Lowercase word to match
-            match: Match type (exact, prefix, contains)
-
-        Returns:
-            Tuple of (SQL condition, parameter value)
-
-        Raises:
-            ValueError: If match type is invalid
-        """
-        if match == "exact":
-            return "source.word_normalized = ?", word_normalized
-        elif match == "prefix":
-            return "source.word_normalized LIKE ?", f"{word_normalized}%"
-        elif match == "contains":
-            return "source.word_normalized LIKE ?", f"%{word_normalized}%"
-        else:
-            raise ValueError(f"Invalid match type: {match}. Must be 'exact', 'prefix', or 'contains'")
-
-    def _build_target_condition(
-        self,
-        source_lang: str,
-        word_param: str,
-        target_lang: str | None,
-        limit: int
-    ) -> tuple[str, list]:
-        """
-        Build target language condition and parameters.
-
-        Args:
-            source_lang: Source language code
-            word_param: Word parameter value
-            target_lang: Target language code (optional)
-            limit: Result limit
-
-        Returns:
-            Tuple of (SQL condition, parameter list)
-        """
-        if target_lang:
-            return "AND target.language_code = ?", [source_lang, word_param, target_lang, limit]
-        else:
-            return "", [source_lang, word_param, limit]
-
-    def _build_query(self, direction: DirectionType, word_condition: str, target_condition: str) -> str:
-        """
-        Build SQL query based on direction.
-
-        Args:
-            direction: Query direction (forward or reverse)
-            word_condition: Word WHERE clause
-            target_condition: Target language WHERE clause
-
-        Returns:
-            SQL query string
-        """
-        if direction == "forward":
-            # Forward lookup: English/French → African languages
-            return f"""
-                SELECT
-                    source.word as source_word,
-                    source.language_code as source_language,
-                    target.word as target_word,
-                    target.language_code as target_language,
-                    target.webonary_link as webonary_link
-                FROM words source
-                JOIN translations t ON source.id = t.source_word_id
-                JOIN words target ON t.target_word_id = target.id
-                WHERE source.language_code = ?
-                  AND {word_condition}
-                  {target_condition}
-                ORDER BY target.word
-                LIMIT ?
-            """
-        else:  # reverse
-            # Reverse lookup: African languages → English/French
-            return f"""
-                SELECT
-                    source.word as source_word,
-                    source.language_code as source_language,
-                    target.word as target_word,
-                    target.language_code as target_language,
-                    source.webonary_link as webonary_link
-                FROM words source
-                JOIN translations t ON source.id = t.target_word_id
-                JOIN words target ON t.source_word_id = target.id
-                WHERE source.language_code = ?
-                  AND {word_condition}
-                  {target_condition}
-                ORDER BY target.word
-                LIMIT ?
-            """
 
     def _rows_to_dicts(self, rows: list) -> list[dict]:
         """

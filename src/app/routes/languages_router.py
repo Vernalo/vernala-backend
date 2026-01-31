@@ -29,18 +29,11 @@ router = APIRouter(prefix="/languages", tags=["Languages"])
 async def get_languages(
     language_repo: LanguageRepositoryDep
 ) -> LanguagesResponse:
-    """
-    Get all supported languages with metadata.
-
-    Returns:
-        LanguagesResponse with list of languages and their details
-    """
     try:
         lang_info = language_repo.get_all_languages()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-    # Convert to Pydantic models
     languages = [
         LanguageInfo(**lang)
         for lang in lang_info["languages"]
