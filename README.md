@@ -12,6 +12,8 @@ Async web scraper for African language dictionaries from webonary.org. Extracts 
 
 ## Installation
 
+### Option 1: Local Installation
+
 Requires Python 3.14+ and uv package manager.
 
 ```bash
@@ -21,6 +23,23 @@ uv sync --dev
 # Activate virtual environment
 source .venv/bin/activate
 ```
+
+### Option 2: Docker Installation
+
+Requires Docker and Docker Compose.
+
+```bash
+# Build and start the API server
+docker-compose up -d
+
+# View logs
+docker-compose logs -f api
+
+# Stop the server
+docker-compose down
+```
+
+The API will be available at `http://localhost:8000`
 
 ## Usage
 
@@ -159,6 +178,70 @@ curl "http://localhost:8000/translate?source=en&target=nnh&word=aban&match=prefi
 - `fr` - French (Français)
 - `nnh` - Ngiemboon
 - `bfd` - Bafut (if scraped)
+
+## Docker Deployment
+
+The project includes Docker support for easy deployment.
+
+### Quick Start
+
+```bash
+# 1. Make sure you have the SQLite database ready
+# If you need to create it from scraped data:
+uv run python src/db/migrate.py
+
+# 2. Copy the database to the data directory
+mkdir -p data
+cp vernala.db data/
+
+# 3. Start the container
+docker-compose up -d
+
+# 4. Check the API
+curl http://localhost:8000/health
+```
+
+### Docker Commands
+
+```bash
+# Build the image
+docker-compose build
+
+# Start in foreground (see logs)
+docker-compose up
+
+# Start in background
+docker-compose up -d
+
+# View logs
+docker-compose logs -f api
+
+# Restart the container
+docker-compose restart
+
+# Stop and remove containers
+docker-compose down
+
+# Rebuild and restart
+docker-compose up -d --build
+```
+
+### Docker Configuration
+
+- **Port**: The API runs on port 8000 (mapped to host port 8000)
+- **Database**: SQLite database is stored in `./data/vernala.db` (persisted via volume mount)
+- **Health Check**: Automatic health checks every 30 seconds at `/health` endpoint
+- **Auto-restart**: Container restarts automatically unless stopped manually
+
+### Accessing the Database in Docker
+
+```bash
+# Connect to the container
+docker exec -it vernala-api bash
+
+# Run SQLite commands inside the container
+sqlite3 /app/data/vernala.db "SELECT COUNT(*) FROM words"
+```
 
 ## Adding Languages
 
