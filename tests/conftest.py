@@ -149,10 +149,3 @@ def language_repo(sample_db):
     """Fixture for LanguageRepository with test database."""
     from db.repositories import LanguageRepository
     return LanguageRepository(sample_db)
-
-
-@pytest.fixture
-def stats_repo(sample_db):
-    """Fixture for StatsRepository with test database."""
-    from db.repositories import StatsRepository
-    return StatsRepository(sample_db)
