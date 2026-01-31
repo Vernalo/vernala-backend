@@ -118,7 +118,8 @@ class DatabaseMigrator:
         conn: sqlite3.Connection,
         json_file: Path,
         source_lang_code: str,
-        target_lang_code: str
+        target_lang_code: str,
+        target_lang_name: str
     ) -> None:
         """Process a single JSON file containing dictionary entries."""
         cursor = conn.cursor()
@@ -138,8 +139,8 @@ class DatabaseMigrator:
             # Insert source word (no webonary link for English/French)
             source_word_id = self.get_or_create_word(cursor, source_word, source_lang_code)
 
-            # Process all target language translations
-            target_translations = entry.get("ngiemboon", [])  # JSON always has "ngiemboon" key
+            # Process all target language translations using the language name as key
+            target_translations = entry.get(target_lang_name, [])
 
             for translation in target_translations:
                 target_word = translation.get("word")
@@ -204,7 +205,7 @@ class DatabaseMigrator:
                 if en_dir.exists():
                     json_files = sorted(en_dir.glob("*.json"))
                     for json_file in json_files:
-                        self.process_json_file(conn, json_file, "en", target_lang_code)
+                        self.process_json_file(conn, json_file, "en", target_lang_code, lang_name)
                     print(f"  ✓ Processed {len(json_files)} English files")
 
                 # Process French source files
@@ -212,7 +213,7 @@ class DatabaseMigrator:
                 if fr_dir.exists():
                     json_files = sorted(fr_dir.glob("*.json"))
                     for json_file in json_files:
-                        self.process_json_file(conn, json_file, "fr", target_lang_code)
+                        self.process_json_file(conn, json_file, "fr", target_lang_code, lang_name)
                     print(f"  ✓ Processed {len(json_files)} French files")
 
                 print()
