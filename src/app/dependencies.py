@@ -8,15 +8,13 @@ from app.services import LanguageService, TranslationService
 
 DEFAULT_DB_PATH = os.getenv("VERNALA_DB_PATH", "vernala.db")
 
-
+@lru_cache()
 def get_translation_repository() -> TranslationRepository:
     return TranslationRepository(DEFAULT_DB_PATH)
-
 
 @lru_cache()
 def get_language_repository() -> LanguageRepository:
     return LanguageRepository(DEFAULT_DB_PATH)
-
 
 @lru_cache()
 def get_language_service(
