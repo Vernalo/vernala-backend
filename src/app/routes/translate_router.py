@@ -52,30 +52,21 @@ async def translate(
         examples=[10]
     )
 ) -> TranslateResponse:
-    """
-    Translate a word from source to target language.
-
-    This endpoint is thin - all business logic is in TranslationService.
-    """
-    # Build query object
     query = TranslationQuery(
         source_lang=source,
         word=word,
         target_lang=target,
-        match=match,  # type: ignore
+        match=match, # type: ignore
         limit=limit
     )
 
     try:
-        # Delegate to service
         results = translation_service.translate(query)
     except LanguageValidationError as e:
-        # Map service exception to HTTP exception
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-    # Build response
     return TranslateResponse(
         query=QueryInfo(
             source=source,
