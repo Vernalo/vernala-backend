@@ -185,63 +185,34 @@ class TestTranslationRepository:
 
 
 class TestLanguageRepository:
-    """Tests for LanguageRepository."""
+    """Tests for LanguageRepository - raw data access only."""
 
-    def test_get_all_languages(self, language_repo):
-        """Test getting all languages."""
-        result = language_repo.get_all_languages()
+    def test_get_all_languages_raw(self, language_repo):
+        """Test getting all languages with raw data."""
+        result = language_repo.get_all_languages_raw()
 
-        assert "languages" in result
-        assert "count" in result
-        assert result["count"] == 3
+        assert isinstance(result, list)
+        assert len(result) == 3
 
-        codes = {lang["code"] for lang in result["languages"]}
+        codes = {lang["language_code"] for lang in result}
         assert "en" in codes
         assert "fr" in codes
         assert "nnh" in codes
 
-    def test_get_language_codes(self, language_repo):
-        """Test getting language code set."""
-        codes = language_repo.get_language_codes()
+    def test_get_all_languages_raw_structure(self, language_repo):
+        """Test raw data structure."""
+        result = language_repo.get_all_languages_raw()
 
-        assert isinstance(codes, set)
-        assert "en" in codes
-        assert "fr" in codes
-        assert "nnh" in codes
-        assert len(codes) == 3
-
-    def test_language_metadata_english(self, language_repo):
-        """Test English language metadata."""
-        result = language_repo.get_all_languages()
-
-        en_lang = next(l for l in result["languages"] if l["code"] == "en")
-        assert en_lang["name"] == "English"
-        assert en_lang["type"] == "source"
-        assert en_lang["word_count"] == 3
-
-    def test_language_metadata_french(self, language_repo):
-        """Test French language metadata."""
-        result = language_repo.get_all_languages()
-
-        fr_lang = next(l for l in result["languages"] if l["code"] == "fr")
-        assert fr_lang["name"] == "French"
-        assert fr_lang["type"] == "source"
-        assert fr_lang["word_count"] == 3
-
-    def test_language_metadata_ngiemboon(self, language_repo):
-        """Test Ngiemboon language metadata."""
-        result = language_repo.get_all_languages()
-
-        nnh_lang = next(l for l in result["languages"] if l["code"] == "nnh")
-        assert nnh_lang["name"] == "Ngiemboon"
-        assert nnh_lang["type"] == "target"
-        assert nnh_lang["word_count"] == 3
+        for lang in result:
+            assert "language_code" in lang
+            assert "word_count" in lang
+            assert len(lang) == 2  # Only these two fields
 
     def test_language_word_counts(self, language_repo):
         """Test that word counts are accurate."""
-        result = language_repo.get_all_languages()
+        result = language_repo.get_all_languages_raw()
 
-        for lang in result["languages"]:
+        for lang in result:
             assert lang["word_count"] > 0
             assert isinstance(lang["word_count"], int)
 

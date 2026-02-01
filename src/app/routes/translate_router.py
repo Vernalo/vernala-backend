@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Query, HTTPException
-from app.models import TranslateResponse, QueryInfo, TranslationResult, ErrorResponse
-from app.dependencies import TranslationRepositoryDep, LanguageRepositoryDep
+from app.models import TranslateResponse, QueryInfo, ErrorResponse
+from app.dependencies import TranslationServiceDep
+from app.services import TranslationQuery, LanguageValidationError
 
 router = APIRouter(prefix="/translate", tags=["Translation"])
 
@@ -15,8 +16,7 @@ router = APIRouter(prefix="/translate", tags=["Translation"])
     summary="Translate a word",
 )
 async def translate(
-    translation_repo: TranslationRepositoryDep,
-    language_repo: LanguageRepositoryDep,
+    translation_service: TranslationServiceDep,
     source: str = Query(
         ...,
         min_length=2,
@@ -52,40 +52,30 @@ async def translate(
         examples=[10]
     )
 ) -> TranslateResponse:
-    valid_languages = language_repo.get_language_codes()
+    """
+    Translate a word from source to target language.
 
-    if source not in valid_languages:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unsupported source language: {source}. Valid codes: {', '.join(sorted(valid_languages))}"
-        )
-
-    if target and target not in valid_languages:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unsupported target language: {target}. Valid codes: {', '.join(sorted(valid_languages))}"
-        )
-
-    is_african_source = source not in {"en", "fr"}
-    direction = "reverse" if is_african_source else "forward"
+    This endpoint is thin - all business logic is in TranslationService.
+    """
+    # Build query object
+    query = TranslationQuery(
+        source_lang=source,
+        word=word,
+        target_lang=target,
+        match=match,  # type: ignore
+        limit=limit
+    )
 
     try:
-        results = translation_repo.query_translations(
-            source_lang=source,
-            word=word,
-            target_lang=target,
-            match=match,  # type: ignore
-            limit=limit,
-            direction=direction  # type: ignore
-        )
+        # Delegate to service
+        results = translation_service.translate(query)
+    except LanguageValidationError as e:
+        # Map service exception to HTTP exception
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-    translation_results = [
-        TranslationResult(**result)
-        for result in results
-    ]
-
+    # Build response
     return TranslateResponse(
         query=QueryInfo(
             source=source,
@@ -93,6 +83,6 @@ async def translate(
             word=word,
             match=match
         ),
-        results=translation_results,
-        count=len(translation_results)
+        results=results,
+        count=len(results)
     )

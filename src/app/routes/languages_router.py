@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from app.models import LanguagesResponse, LanguageInfo, ErrorResponse
-from app.dependencies import LanguageRepositoryDep
+from app.models import LanguagesResponse, ErrorResponse
+from app.dependencies import LanguageServiceDep
 
 router = APIRouter(prefix="/languages", tags=["Languages"])
 
@@ -14,17 +14,12 @@ router = APIRouter(prefix="/languages", tags=["Languages"])
     summary="Get supported languages",
 )
 async def get_languages(
-    language_repo: LanguageRepositoryDep
+    language_service: LanguageServiceDep
 ) -> LanguagesResponse:
     try:
-        lang_info = language_repo.get_all_languages()
+        languages = language_service.get_all_languages()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-
-    languages = [
-        LanguageInfo(**lang)
-        for lang in lang_info["languages"]
-    ]
 
     return LanguagesResponse(
         languages=languages,
