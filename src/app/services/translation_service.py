@@ -6,7 +6,6 @@ from db.query_builders import MatchType, DirectionType
 
 
 class TranslationRepositoryProtocol(Protocol):
-    """Protocol for translation repository dependency."""
     def query_translations(
         self,
         source_lang: str,
@@ -19,14 +18,12 @@ class TranslationRepositoryProtocol(Protocol):
 
 
 class LanguageServiceProtocol(Protocol):
-    """Protocol for language service dependency."""
     def validate_language_code(self, code: str) -> bool: ...
     def get_valid_language_codes(self) -> set[str]: ...
     def is_african_language(self, lang_code: str) -> bool: ...
 
 
 class LanguageValidationError(ValueError):
-    """Raised when a language code is invalid."""
     def __init__(self, language: str, valid_codes: set[str], is_source: bool = True):
         lang_type = "source" if is_source else "target"
         valid_codes_str = ", ".join(sorted(valid_codes))
@@ -40,7 +37,6 @@ class LanguageValidationError(ValueError):
 
 @dataclass
 class TranslationQuery:
-    """Value object for translation query parameters."""
     source_lang: str
     word: str
     target_lang: str | None
@@ -49,16 +45,6 @@ class TranslationQuery:
 
 
 class TranslationService:
-    """
-    Business logic for translation operations.
-
-    Handles:
-    - Language validation
-    - Direction determination (forward/reverse)
-    - Translation query orchestration
-    - Data transformation
-    """
-
     def __init__(
         self,
         translation_repo: TranslationRepositoryProtocol,
@@ -68,16 +54,6 @@ class TranslationService:
         self.language_service = language_service
 
     def validate_languages(self, source: str, target: str | None) -> None:
-        """
-        Validate source and target language codes.
-
-        Args:
-            source: Source language code
-            target: Target language code (None for all languages)
-
-        Raises:
-            LanguageValidationError: If any language code is invalid
-        """
         valid_codes = self.language_service.get_valid_language_codes()
 
         if not self.language_service.validate_language_code(source):
@@ -116,13 +92,10 @@ class TranslationService:
         Raises:
             LanguageValidationError: If language codes are invalid
         """
-        # Validate languages
         self.validate_languages(query.source_lang, query.target_lang)
 
-        # Determine direction
         direction = self.determine_direction(query.source_lang)
 
-        # Query translations
         raw_results = self.translation_repo.query_translations(
             source_lang=query.source_lang,
             word=query.word,
@@ -132,5 +105,4 @@ class TranslationService:
             direction=direction
         )
 
-        # Transform to Pydantic models
         return [TranslationResult(**result) for result in raw_results]

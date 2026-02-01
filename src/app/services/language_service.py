@@ -4,20 +4,10 @@ from app.models import LanguageInfo
 
 
 class LanguageRepositoryProtocol(Protocol):
-    """Protocol for language repository dependency."""
     def get_all_languages_raw(self) -> list[dict]: ...
 
 
 class LanguageService:
-    """
-    Business logic for language operations.
-
-    Handles:
-    - Language validation
-    - Language classification
-    - Language metadata transformation
-    """
-
     def __init__(
         self,
         language_repo: LanguageRepositoryProtocol,
@@ -28,7 +18,6 @@ class LanguageService:
         self._valid_languages_cache: set[str] | None = None
 
     def _load_default_config(self) -> dict:
-        """Load default language configuration."""
         try:
             from cli.scrapers.languages import LANGUAGES
             return LANGUAGES
@@ -63,7 +52,7 @@ class LanguageService:
         """
         Determine language type: 'source' or 'target'.
 
-        Business rule: English and French are source languages,
+        English and French are source languages,
         African languages are target languages.
 
         Args:
@@ -77,18 +66,6 @@ class LanguageService:
         return "target"
 
     def is_african_language(self, lang_code: str) -> bool:
-        """
-        Check if language is an African language.
-
-        Business rule: Any language that is not English or French
-        is considered an African language.
-
-        Args:
-            lang_code: Language code
-
-        Returns:
-            True if African language, False otherwise
-        """
         return lang_code not in {"en", "fr"}
 
     def get_language_name(self, lang_code: str) -> str:
@@ -113,12 +90,6 @@ class LanguageService:
             return lang_code.upper()
 
     def get_all_languages(self) -> list[LanguageInfo]:
-        """
-        Get all supported languages with metadata.
-
-        Returns:
-            List of LanguageInfo models with full metadata
-        """
         raw_languages = self.language_repo.get_all_languages_raw()
 
         return [
