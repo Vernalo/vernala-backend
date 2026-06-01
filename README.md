@@ -1,6 +1,6 @@
 # vernala-backend
 
-Async web scraper for African language dictionaries from webonary.org. Extracts English-to-African language translations and saves them as structured JSON files.
+Async web scraper for African language dictionaries from webonary.org. Extracts English-to-African language translations and saves them
 
 ## Features
 
