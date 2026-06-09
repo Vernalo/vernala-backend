@@ -4,10 +4,10 @@ Async web scraper for African language dictionaries from webonary.org. Extracts 
 
 ## Features
 
-- Asynchronous scraping with aiohttp for concurrent requests
+- Asynchronous scraping
 - Automatic pagination handling
 - Built-in rate limiting to respect server resources
-- Support for multiple African languages
+- Support for multiple African languages from webonary
 - Organized JSON output by language and letter
 
 ## Installation
